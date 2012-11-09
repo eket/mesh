@@ -20,12 +20,6 @@ _resize = ->
   [_canvas.width, _canvas.height] = [_w, _h]
   ___ "resized canvas to #{_w}x#{_h}"
 
-_white = 'rgba(255,255,255,1.0)'
-_red = 'rgba(255,0,0,1.0)'
-_green = 'rgba(0,255,0,1.0)'
-_blue = 'rgba(0,0,255,1.0)'
-_points = [0..8]
-
 _init = ->
   ___ 'initialize canvas'
   window.addEventListener 'resize', _resize, no
@@ -33,41 +27,55 @@ _init = ->
   _context = _canvas.getContext '2d'
   _resize()
 
-  _add_event_listener _canvas, 'down', _on_down
-  _add_event_listener _canvas, 'up', _on_up
-  _add_event_listener _canvas, 'move', _on_move
+  #_add_event_listener _canvas, 'down', _on_down_hl
+  #_add_event_listener _canvas, 'up', _on_up_edit
+  _add_event_listener _canvas, 'move', _on_move_hl
 
   _loop _context
 
+_find_poly = (x, y) ->
+  p = _.find _polys, (p) ->
+    [b1, b2, b3] = _.map [[0,1], [1,2], [2,0]], (bc) ->
+      [b, c] = [_points[p[bc[0]]], _points[p[bc[1]]]]
+      (x-_w*c.x)*(_h*b.y-_h*c.y) - (_w*b.x-_w*c.x)*(y-_h*c.y) < 0
+    (b1 is b2) and (b2 is b3)
+
+_on_move_hl = (e) ->
+  [x, y] = [(_get_x e), (_get_y e)]
+  if p = _find_poly x, y
+    p[3] = p[3].hue .01, yes
+
+
+
+
 _find_closest_vertex = (x, y) ->
   _.first _.sortBy _points, (p) -> _distance x, y, _w*p.x, _h*p.y
-
-_on_down = (e) ->
+_on_down_edit = (e) ->
   [x, y] = [(_get_x e), (_get_y e)]
   (v=_find_closest_vertex x, y).hl = on
-
-_on_up = (e) -> p.hl = off for p in _points
-
-_on_move = (e) ->
+_on_up_edit = (e) -> p.hl = off for p in _points
+_on_move_edit = (e) ->
   [x, y] = [(_get_x e), (_get_y e)]
   v = _.find _points, (p) -> p.hl is on
   [v.x, v.y] = [x/_w, y/_h] if v
-
 _dump = -> JSON.stringify ({x:p.x, y:p.y} for p in _points)
+
+
+
 
 _loop = (__) ->
   __.clearRect 0, 0, _w, _h
-  __.fillStyle = _green
-  __.strokeStyle = _blue
-  __.lineWidth = 2
+  #__.strokeStyle = (one.color '#00f').css()
+  #__.lineWidth = 2
   for p, v of _polys
+    __.fillStyle = v[3].css()
     __.beginPath()
     __.moveTo _w*_points[v[0]].x, _h*_points[v[0]].y
     __.lineTo _w*_points[v[1]].x, _h*_points[v[1]].y
     __.lineTo _w*_points[v[2]].x, _h*_points[v[2]].y
     __.lineTo _w*_points[v[0]].x, _h*_points[v[0]].y
     __.fill()
-    __.stroke()
+    #__.stroke()
 
   window.webkitRequestAnimationFrame -> _loop __
 
@@ -82,6 +90,7 @@ _polys =
   h: [0, 7, 8]
   i: [0, 2, 8]
   j: [2, 5, 8]
+v.push (one.color '#f00') for k,v of _polys
 
 _points =
 [{"x":0.35346097201767307,"y":0.030165912518853696},{"x":0.7128129602356407,"y":0.03619909502262444},{"x":0.6892488954344624,"y":0.2579185520361991},{"x":0.9558173784977909,"y":0.3861236802413273},{"x":0.7245949926362297,"y":0.7345399698340875},{"x":0.45508100147275404,"y":0.5641025641025641},{"x":0.3711340206185567,"y":0.7601809954751131},{"x":0.025036818851251842,"y":0.3650075414781297},{"x":0.3873343151693667,"y":0.28808446455505277}]
