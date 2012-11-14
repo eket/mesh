@@ -10,9 +10,13 @@ io.sockets.on 'connection', (s) ->
   s.on 'e', (d) ->
     ___ "<<#{d}"
     update d
+  s.on 'fade_out', (d) ->
+    ___ "<<#{d[0]} #{d[1]} fade out"
+    ss.emit 'fade_out', d for ss in socks
+    
 
 update = (i) ->
-  polys[i] = polys[i].hue 0.01, yes
+  polys[i] = polys[i].hue 0.1, yes
   send()
 
 send = ->

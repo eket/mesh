@@ -28,6 +28,10 @@ _send = (i) ->
   ___ ">>#{i}"
   _sock.emit 'e', i
 
+_send_fade_out = (i,d) ->
+  ___ ">>#{i} fade out"
+  _sock.emit 'fade_out', [i,d]
+
 _init = ->
   ___ 'initialize canvas'
   window.addEventListener 'resize', _resize, no
@@ -39,7 +43,8 @@ _init = ->
   #_add_event_listener _canvas, 'up', _on_up_edit
   #_add_event_listener _canvas, 'move', _on_move_edit
 
-  _add_event_listener _canvas, 'move', _on_move_hl
+  _add_event_listener _canvas, 'move', _.throttle _on_move_hl, 50
+  _add_event_listener _canvas, 'down', _on_down_fade
 
   ___ 'initialize socket'
   _sock = io.connect SIO
@@ -47,15 +52,23 @@ _init = ->
     ___ 'connected'
     _sock.on 'u', (d) ->
       _polys[i][3] = one.color p for p,i in d
+    _sock.on 'fade_out', (d) ->
+      _fade_out d[0], d[1]
 
   _loop _context
+
+_fade_out = (i, duration) ->
+  _polys[i][4] = [Date.now(), duration, (v,t) ->
+    if 0<t<1 then v[3].lightness v[3].lightness()* (0.4-t) else v[3]]
 
 _loop = (__) ->
   __.clearRect 0, 0, _w, _h
   #__.strokeStyle = (one.color '#00f').css()
   #__.lineWidth = 2
+  now = Date.now()
   for v, i in _polys
-    __.fillStyle = v[3].css()
+    [sh_start, sh_duration, sh_fun] = v[4] if v[4]?
+    __.fillStyle = (if sh_fun? then (sh_fun v, (now-sh_start)/sh_duration) else v[3]).css()
     __.beginPath()
     __.moveTo _w*_points[v[0]].x, _h*_points[v[0]].y
     __.lineTo _w*_points[v[1]].x, _h*_points[v[1]].y
@@ -70,6 +83,12 @@ _loop = (__) ->
     #__.fillText i, _w*v.x, _h*v.y
 
   window.webkitRequestAnimationFrame -> _loop __
+
+_on_down_fade = (e) ->
+  [x, y] = [(_get_x e), (_get_y e)]
+  if (p=_find_poly x, y)?
+    _send_fade_out (_polys.indexOf p), 5000
+
 
 _on_move_hl = (e) ->
   [x, y] = [(_get_x e), (_get_y e)]
