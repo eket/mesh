@@ -1,0 +1,17 @@
+{
+  "name": "mesh",
+  "version": "0.0.0",
+  "main": "mesh.js",
+  "dependencies": {
+    "socket.io": "*",
+    "underscore": "*",
+    "onecolor": "*",
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eket/mesh.git"
+  },
+  "author": "mcbuddha",
+  "license": "public domain",
+  "readmeFilename": "README.md"
+}
