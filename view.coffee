@@ -1,4 +1,4 @@
-SIO = 'http://10.0.0.10:4567'
+SIO = 'http://localhost:4567'
 _polys =
   [[0, 1, 2],
   [1, 2, 3],

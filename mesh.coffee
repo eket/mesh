@@ -1,10 +1,13 @@
-___ = (x) -> console.log x
+# socket.io port
+SIO = (parseInt process.argv[2]) or 4567
+
 _ = require 'underscore'
 color = (require 'onecolor') 'hsv(0,100%,100%)'
-polys = (color for i in [0..9])
-socks = []
 
-io = (require 'socket.io').listen 4567
+___ = (x) -> console.log x
+
+socks = []
+io = (require 'socket.io').listen SIO
 io.sockets.on 'connection', (s) ->
   socks.push s
   s.on 'e', (d) ->
@@ -13,8 +16,9 @@ io.sockets.on 'connection', (s) ->
   s.on 'fade_out', (d) ->
     ___ "<<#{d[0]} #{d[1]} fade out"
     ss.emit 'fade_out', d for ss in socks
+___ "opened socket.io #{SIO}"
     
-
+polys = (color for i in [0..9])
 update = (i) ->
   polys[i] = polys[i].hue 0.1, yes
   send()
