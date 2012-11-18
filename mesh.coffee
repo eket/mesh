@@ -7,7 +7,7 @@ color = (require 'onecolor') 'hsv(0,100%,100%)'
 ___ = (x) -> console.log x
 
 socks = []
-io = (require 'socket.io').listen SIO
+io = (require 'socket.io').listen SIO, 'log level': 1
 io.sockets.on 'connection', (s) ->
   socks.push s
   s.on 'e', (d) ->
@@ -25,5 +25,5 @@ update = (i) ->
 
 send = ->
   l = _.map polys, (p) -> p.hex()
-  ___ ">>#{s}"
+  ___ ">>#{l}"
   s.emit 'u', l for s in socks
