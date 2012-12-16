@@ -5,7 +5,7 @@
   "dependencies": {
     "socket.io": "*",
     "underscore": "*",
-    "onecolor": "*",
+    "onecolor": "*"
   },
   "repository": {
     "type": "git",
