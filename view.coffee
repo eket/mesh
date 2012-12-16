@@ -62,7 +62,7 @@ _init = ->
 
 _fade_out = (i, duration) ->
   _polys[i][4] = [Date.now(), duration, (v,t) ->
-    if 0<t<1 then v[3].lightness v[3].lightness()* (0.4-t) else v[3]]
+    if 0<t<1 then v[3].lightness v[3].lightness()* (0.5+ (t/2.0)) else v[3]]
 
 _loop = (__) ->
   __.clearRect 0, 0, _w, _h
