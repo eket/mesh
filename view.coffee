@@ -34,16 +34,17 @@ _send_fade_out = (i,d) ->
   ___ ">>#{i} fade out"
   _sock.emit 'fade_out', [i,d]
 
+_edit_mode_on = ->
+  _add_event_listener _canvas, 'down', _on_down_edit
+  _add_event_listener _canvas, 'up', _on_up_edit
+  _add_event_listener _canvas, 'move', _on_move_edit
+
 _init = ->
   ___ 'initialize canvas'
   window.addEventListener 'resize', _resize, no
   _canvas = document.getElementById 'mesh_canvas'
   _context = _canvas.getContext '2d'
   _resize()
-
-  #_add_event_listener _canvas, 'down', _on_down_edit
-  #_add_event_listener _canvas, 'up', _on_up_edit
-  #_add_event_listener _canvas, 'move', _on_move_edit
 
   _add_event_listener _canvas, 'move', _.throttle _on_move_hl, 50
   _add_event_listener _canvas, 'down', _on_down_fade
